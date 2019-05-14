@@ -72,18 +72,31 @@ def startTest(provider,max_macs,iface):
 	logF("Starting test with %s" % provider,"info")
 	rs = False
 	prefixs = (open(provider,'r').read()).splitlines()
-	for prefix in prefixs:
-		test_macs = generateRandom(prefix,max_macs)
-		for test_mac in test_macs:
-			rs = tryMAC(test_mac,iface)
-		if rs:
-			logF("Valid IP for: %s (%s)" % (rs,provider),"info")
-			break
+
+	found = False
+
+	if unique_macs:
+		logF("Starting test with macs learned from network","info")
+		for mac in unique_macs:
+			rs = tryMAC(mac,iface)
+			if rs:
+				logF("Valid IP for: %s (%s)" % (rs,provider),"info")
+				found = True
+				break
+
+	if not found:
+		for prefix in prefixs:
+			test_macs = generateRandom(prefix,max_macs)
+			for test_mac in test_macs:
+				rs = tryMAC(test_mac,iface)
+			if rs:
+				logF("Valid IP for: %s (%s)" % (rs,provider),"info")
+				break
 
 def main():
 
 	iface = "eth0"
-	u_learn = False
+	u_learn = True
 	u_provider = "cisco"
 	u_max_macs = 1
 
