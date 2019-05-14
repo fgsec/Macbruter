@@ -68,7 +68,7 @@ def is_interface_up(interface):
 	if ipv4:
 		return True
 	elif ipv6:
-		logF("IPV6 assigned!","info")
+		logF("IPV6 assigned, waiting for IPV4...","info")
 		if waitIPV4(interface):
 			return True
 	return False
@@ -115,12 +115,13 @@ def main():
 	u_learn = True
 	u_provider = "cisco"
 	u_max_macs = 1
+	u_learnpackets = 1
 
 	if not checkRequirements():
 		sys.exit()
 
 	if u_learn:
-		sniff(prn=LearnMacs,count=1)
+		sniff(prn=LearnMacs,count=u_learnpackets)
 		print(unique_macs)
 
 	provider = checkProvider(u_provider)
