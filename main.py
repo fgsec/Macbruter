@@ -7,9 +7,10 @@ import random
 import netifaces
 from scapy.all import sniff
 
+version = 0.1
 unique_macs = []
 providers_location = "lib/macs"
-wait_for_ip = 3
+wait_for_ip = 6
 
 def logF(msg,type):
 	print(msg)
@@ -56,11 +57,19 @@ def generateRandom(prefix,value):
 def is_interface_up(interface):
 	time.sleep(wait_for_ip)
 	addr = netifaces.ifaddresses(interface)
-	return netifaces.AF_INET in addr
+	ipv4 = netifaces.AF_INET in addr
+	ipv6 = netifaces.AF_INET6 in addr
+	# for debug purposes
+	if ipv6:
+		logF("IPV6 assigned!","info")
+	if ipv4 or ipv6:
+		return True
+	return False
 
 def tryMAC(mac,iface):
 	logF("Testing %s on %s" % (mac,iface),"info")
 	os.system("ifconfig %s down" % iface)
+	time.sleep(1) # Give network card some time
 	os.system("macchanger --mac %s %s > /dev/null" % (mac,iface))
 	os.system("ifconfig %s up" % iface)
 	if(is_interface_up(iface)):
