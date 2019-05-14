@@ -54,16 +54,23 @@ def generateRandom(prefix,value):
 			logF(("Error issuing random MAC for %s" % prefix),"error")
 	return macs
 
+def waitIPV4(interface):
+	time.sleep(30)
+	addr = netifaces.ifaddresses(interface)
+	return netifaces.AF_INET in addr
+
 def is_interface_up(interface):
 	time.sleep(wait_for_ip)
 	addr = netifaces.ifaddresses(interface)
 	ipv4 = netifaces.AF_INET in addr
 	ipv6 = netifaces.AF_INET6 in addr
 	# for debug purposes
-	if ipv6:
-		logF("IPV6 assigned!","info")
-	if ipv4 or ipv6:
+	if ipv4:
 		return True
+	elif ipv6:
+		logF("IPV6 assigned!","info")
+		if waitIPV4(interface):
+			return True
 	return False
 
 def tryMAC(mac,iface):
